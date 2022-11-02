@@ -36,3 +36,4 @@ jobs:
           title: "PDF Build"
           files: |
             build/index.pdf
+            build/img
