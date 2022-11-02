@@ -1,4 +1,4 @@
-name: Docs to PDF
+name: Build & Deploy 🚀
 on:
   push:
     branches:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   converttopdf:
-    name: Build PDF
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,8 +21,18 @@ jobs:
           images_dir: src/img
           image_import: ./img
           build_html: true
-          build_pdf: false
-      - name: Deploy 🚀
+          build_pdf: true
+          table_of_contents: true
+      - name: Deploy Github pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build
+      - name: Automatic Releases
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "PDF Build"
+          files: |
+            build/index.pdf
