@@ -21,7 +21,8 @@ jobs:
           images_dir: src/img
           image_import: ./img
           build_html: true
-      - uses: actions/upload-artifact@v1
+          build_pdf: false
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          name: src
-          path: build
+          folder: build
