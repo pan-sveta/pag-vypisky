@@ -23,13 +23,6 @@ jobs:
           build_html: true
           build_pdf: true
           table_of_contents: true
-      - name: Copy images file
-        # You may pin to the exact commit or the version.
-        # uses: canastro/copy-action@7ddff6fc153a2ea2cd0fb88ed9750544c051e399
-        uses: canastro/copy-action@0.0.2
-        with:
-          source: src/img
-          target: build/img
       - name: Deploy Github pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
