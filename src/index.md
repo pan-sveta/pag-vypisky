@@ -19,7 +19,7 @@
 - Tasky spolu musí často komunikovat -> overhead - přílišná granualita nemusí být žádoucí
 
 ### Příklad
-![Critical path](img/2_critical_path.png)
+![Critical path](./img/2_critical_path.png)
 
 - (a)
   - Critical path length - 3 (4 nebo 3 -> 6 -> 7)
@@ -44,7 +44,7 @@
 - Každý task má přiřazen řádek matice **A** a jeden prvek vektoru **b**
 - Např. pro provedení násobení prvního řádku se musíme doptat tasků 1,4,8 na jeho prvek z **b**, protože náš řádek zde obsahuje nenulové číslo a my ho potřebujeme vynásobit s příslušným prvkem z *b*, který náš task ale nezná
 
-![Critical path](img/2_task_interaction_graph.png)
+![Critical path](./img/2_task_interaction_graph.png)
 
 ## Techniky dekompozice
 Rozlišujeme čtyři základní techniky
@@ -60,12 +60,12 @@ Rozlišujeme čtyři základní techniky
 #### Příklad
 Quicksort
 - Každý sub-list může být rekurzivně zpracováván paralelně
-![Recursive decomposition](img/2_recursive-decomposition.png)
+![Recursive decomposition](./img/2_recursive-decomposition.png)
 
 Hledání minima v listu
 - Můžeme to pochopitelně dělat sériově
 - Paralelně list 4,9,1,7,8,11,2,12 můžeme zpracovat následovně
-![Recursive decomposition](img/2_recursive-decomposition_min.png)
+![Recursive decomposition](./img/2_recursive-decomposition_min.png)
 
 ### Data decomposition
 - Spoléha na charakteristiku dat, s kterými algoritmus pracuje
@@ -83,13 +83,13 @@ Hledání minima v listu
 ##### Příklad
 Násobení dvou matic
 - Každý výsledek **C** je nzávislý na ostatních **C**
-![Output Data Decomposition](img/2_output_data_decomposition_mat.png)
+![Output Data Decomposition](./img/2_output_data_decomposition_mat.png)
 
 Itemset
 - Chceme spočítat počet výskytů itemsetu v databázi transakcí (a)
 - To můžeme dekomponovat, tak že rozdělíme itemsety do více tasků (b)
 - Nepotřebujeme žádnou komunikaci mezi tasky
-![Output Data Decomposition](img/2_output_data_decomposition_items.png)
+![Output Data Decomposition](./img/2_output_data_decomposition_items.png)
 
 #### Input Data Partitioning
 - Použitelné, jestliže každý výstup je spočten jako funkce ze vstupu
@@ -101,9 +101,9 @@ Itemset
 - Rozdělíme databázi transakcí do více tasků
 - Výsledky z jednotlivých tasků poté agregujeme do konečného výsledku
 
-![Input Data Decomposition](img/2_input_data_decomposition_items.png)
+![Input Data Decomposition](./img/2_input_data_decomposition_items.png)
 
 #### Input and Output Data Partitioning
 - Kombinace obou přístupů
 
-![Input Data Decomposition](img/2_inout_data_decomposition_items.png)
+![Input Data Decomposition](./img/2_inout_data_decomposition_items.png)
