@@ -217,3 +217,53 @@ Komplexita
 ### Schemes for Static Mapping 
 #### Mappings Based on Data Partitioning
 TODO
+
+# 3. přednáška
+## Komunikace mezi tasky 
+- Je třeba implementovat efektivně
+- Musí vycházet z architektury použitého paralleního systému
+- Skupinová komunikace je realizována jako více point-to-point zpráv
+- Poslání zprávy o velikosti *m* zabere na nezahlcené síti *t_s + t_w \* m*
+- Tato metrika je použitá k měření rychlosti komunikace
+- Pakliže potřebujeme počítat se zahlcenou sítí -> zvyšujeme *t_w*
+- Předpokládáme, že komunikační síť je obousměrná a jednoportová
+
+## One-to-All Broadcat
+- Jeden procesor zasílá data o velikosti *m* všem ostatním procesorů
+
+## All-to-One Reduction
+- Všechny procesory zasílají zprávu o velikosti *m* jednomu procesoru
+- Tyto data jsou na "centrálním" procesoru agregovány použitím asociativní operace (např. plus, minimum)
+
+![One-to-All Broadcat](./img/3_one_to_all.png)
+
+## One-to-All Broadcats / All-to-One Reduction
+### Na kruhové topologii
+- Broadcast - K poslání *p - 1* zpráv použijeme rekurzivní dvojení (recursive doubling)
+  - Zdrojový procesor odešle zprávu na první procesor. Nyní mají oba dva tyto procesory na starosti pouze půlku ze všech procesorů
+
+![One-to-All Broadcat](./img/3_one_to_all_ring.png)
+
+- Redukce - Obdobný princip ale naopak
+
+![One-to-All Broadcat](./img/3_all_to_one_ring.png)
+
+### Meshi
+- Čtvercová matice *p* procesorů má sqrt(p) sloupců a řádků
+- Broadcast a redukce má dva kroky
+    1. Rozšíříme zprávu po řádce
+    2. Následně posíláme zprávu paralelně po sloupcích
+- Zobecnění tohoto postupu funguje ve více dimensích
+
+![One-to-All Broadcat](./img/3_one_to_all_mesh.png)
+
+#### Příklad
+- Násobíme matici *A* vektorem *v*
+- Musíme provést nejprve one-to-all broadcast a následně all-to-one redukci
+- Čárkované šipky znázorňují směr komunikae
+- Vidíme, že každý procesor P má přidělený čtvercový kus dat matice *A* a jeden prvek vektoru *v*
+- Pro provedení výpočtu musí tedy kupříkladu procesor P_0 poslat svůj prvek vektoru *A* na procesor P_4, P_8 a P_12
+- Následně kupříkladu procesory P_1, P_2, P_3 zaslšou data procesoru P_0 který provede agregaci sečtením
+
+![One-to-All Broadcat](./img/3_one_to_all_matrix.png)
+
