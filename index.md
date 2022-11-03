@@ -77,7 +77,7 @@ Hledání minima v listu
     3. Intermediate data partitioning
 
 #### Output Data Decomposition
-- Často může být element výsledku spočten nezávisle na ostatních výsledcích
+- Element výsledku je spočten nezávisle na ostatních výsledcích
 - Pro stejný problém může existovat více output dekompozic
 
 ##### Příklad
@@ -92,7 +92,7 @@ Itemset
 ![Output Data Decomposition](./img/2_output_data_decomposition_items.png)
 
 #### Input Data Partitioning
-- Použitelné, jestliže každý výstup je spočten jako funkce ze vstupu
+- Výstup je spočten jako funkce ze vstupu
 - V mnoha případech jediná možná dekomnozice - nevíme co je výstup (např. hledání minima, sort listu)
 - Tasku je přiřazena část vstupních data
 
@@ -108,4 +108,110 @@ Itemset
 
 ![Input Data Decomposition](./img/2_inout_data_decomposition_items.png)
 
-### Intermediate Data Partitioning 
+#### Intermediate Data Partitioning 
+- Sekvence transformací ze vstupních na výstupní data
+- Počítáme "mezivýsledky" které následně tranformuje na výsledek
+- Často přívější task dependency graph -> rychlejší
+
+
+![Intermediate Data Partitioning](./img/2_intermediate_data_decomposition_mat.png)
+
+### Exploratory Decomposition
+- Dekompozice probíhá společně s průběžnými výpočty
+- Použitelmé pro problémy které zahrnují explorativní hledání v prostoru řešení
+  - 0/1 integer programming
+  - QAP - Quadratic assignment problem
+  - Theorem proving
+  - Hry (např. šachy)
+
+#### Příklad
+15 puzzle
+- Posouváme prvky v 2d gridu tak, aby byly seřazené
+- Paralelně můžeme v rámci každého tasku počítat všechny možné kroky a najít ty, které jsou správné (na obrázku je správný výsledek podbarven šedě)
+
+![Exploratory Decomposition](./img/2_exploratory_decomposition.png)
+
+#### Anomalous Computations 
+- V mnoha případech může explorativní dekompozice měnit množství vykonané práce v širokém rozsahu
+- Tzn. že může stejný algoritmus být pro nějaké instance velmi rychlý (sublinear speedup) a pro jiné velmi pomalý (superlinear speedup)❓
+
+![Exploratory Decomposition](./img/2_exploratory_decomposition_anomalous.png)
+
+### Hybrid Decompositions 
+- Mix dekompozičních technik
+- Často nutný pro dekompozici problémů
+- Quicksort 
+   - Pouze rekurzivní dekompozice limituje maximální možnou paralelizaci
+   - Lepší je použít mix data a rekurzivní dekompozice
+   - To je způsobeno tím, že ❓ (hádám, že lepší než pivotovat dlouhý list je lepší to prostě rozesrat na víc procesorů rovnou)
+ - Hledání minima
+   - Opět je lepší použít mix data a rekurzivní dekompozice
+
+![Hybrid Decomposition](./img/2_hybrid_decomposition.png)
+
+## Tasky
+- Problém dekomponujeme na tasky
+- Charakteristictika těchto tasků značně ovlivňuje výkon algoritmu
+- Faktory:
+  - **Task generation (Generování tasků)** - Jak je tvoříme
+  - **Task sizes (Velikost tasků)** - Jak jsou tasky velké
+  - **Size of data associated with tasks (Množství asociovaných dat)** - Kolik dat jednotlivé tasky zpracovávají
+
+### Task generation (generování tasků)
+#### Static task generation
+- Víme, kolik tasků bude potřeba na začátku běhu algoritmu
+- Např. maticové operace, grafové algortimy, zpracovávání obrázků
+- Pravidelně strukturované problémy
+
+#### Dynamic task generation:
+- Generujeme tasky v průběhu běhu algoritmu
+- Např. 15 puzzle board
+- Exploratory nebo speculative decomposition
+
+### Task sizes
+#### Uniform
+- Jednotná velikost tasků
+#### Non-uniform
+- Různě velké tasky
+- Nevíme, jak budou tasky velké
+- Např. discrete optimization problems
+
+### Mapping Techniques
+- Tasky musíme přidělovat (mapovat) na fyzické procesory (jádra)
+- Toto musí být uděláno chytře
+- Minimalizujeme overheads
+  - Způsobený komunikací
+  - Způsobený nečiností (nepřidělenou prací) některého procesoru
+- Minimalizace je optimalizační problém a často si odporuje - např. přidělením celé práce jedinému procesoru minimalizuje komunikace, lale způsobí nečinost všech ostatních procesorů
+
+#### Mapping Techniques for Minimum Idling
+ - Musíme současně minimalizovat indling a provádět load balancing
+ - Pouhý loadbalancing neminimalizuje idling!
+ - Mapování je ovlivěno velikostí tasků, zpsůbem generování, velikostí asociovaných dat
+ - Případ (a) je otpimální, případ (b) není
+
+![Mapping Techniques](./img/2_mapping.png)
+
+Dva základní přístupy
+1. Static mapping (statické mapování)
+   - Předem určíme který task bude zpracovávat jaký procesor
+   - Musíme znát (nebo alespoň odhadnout) velikost tasků
+   - Stejně se jedná většinou o NP-complete problém
+2. Dynamic Mapping
+   - Tasky přidělujeme po dobu běhu
+   - Použijeme když např. generujeme tasky za běhu nebo neznáme jejich velikost
+
+Komplexita
+- Obecně se často jedná o NP-Complete problém
+- Tasky mají závislosti
+  - Na jeden procesor - P
+  - Uniform tasky na 2 a více procesorů - NP-complete
+  - Non-uniform tasky na 2 a více procesorů - NP-Complete
+- Bez závislostí
+  - Na jeden procesor - P
+  - Non-uniform tasky na 2 a více procesorů - NP-complete
+  - Uniform tasků na 2 a více procesorů - P
+
+### Schemes for Static Mapping 
+#### Mappings Based on Data Partitioning
+TODO
