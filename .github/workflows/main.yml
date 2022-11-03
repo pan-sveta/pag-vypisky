@@ -18,7 +18,7 @@ jobs:
         with:
           input_dir: src
           output_dir: build
-          images_dir: img
+          images_dir: src/img
           image_import: ./img
           build_html: true
           build_pdf: true
