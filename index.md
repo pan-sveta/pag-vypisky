@@ -47,6 +47,8 @@
 ![Critical path](./img/2_task_interaction_graph.png)
 
 ## Techniky dekompozice
+Jak dekomponujeme problém na tasky?
+
 Rozlišujeme čtyři základní techniky
 1. [Recursive decomposition](#recursive-decomposition)
 2. [Data decomposition](#data-decomposition)
