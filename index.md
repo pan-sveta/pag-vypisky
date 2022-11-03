@@ -107,3 +107,5 @@ Itemset
 - Kombinace obou přístupů
 
 ![Input Data Decomposition](./img/2_inout_data_decomposition_items.png)
+
+### Intermediate Data Partitioning 
