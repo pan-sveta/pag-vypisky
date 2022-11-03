@@ -14,25 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: baileyjm02/markdown-to-pdf@v1
+      - uses: ZacJW/markdown-html-action@1.1.1
         with:
-          input_dir: src
-          output_dir: build
-          images_dir: src/img
-          image_import: ./img
-          build_html: true
-          build_pdf: true
-          table_of_contents: true
+          input_files: src
+          output_files: build
       - name: Deploy Github pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build
-      - name: Automatic Releases
-        uses: marvinpinto/action-automatic-releases@v1.2.1
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "PDF Build"
-          files: |
-            build/index.pdf
