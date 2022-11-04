@@ -331,3 +331,87 @@ TODO
 - **Kruh** - T = (t_s + t_w * m)*(p-1)
 - **Mesh** - T = 2 * t_s * (sqrt(p) - 1) + t_w * m * (p-1)
 - **Hypercube** - T = t_s * log(p) + t_w * m * (p-1)
+
+
+## All-reduce
+- Kadžý node začíná s bufferem o velikosti m
+- Výsledkem je buffer velikosti m na každém nodu, který obsahuje agregovaná data ze všech nodů za pomocí asociativní operace
+- Shodné jako all-to-one reduction s následným one-to-all broadcastem (to je méně efektivní ❓)
+- Vhodnější je použít all-to-all broadcast, kde se nezvětšuje velikost zprávy
+- T = (t_s + t_w * m) * log(p)
+- Rozdíl od all-to-all - neprobíhá p souběžných all-to-one redukcí, každá s jiným cílem výsledku
+
+## Prefix-Sum
+- Mějme p čísel n_0, n_1,...,n_p-1 (každé na jiném nodu), chceme spočíst sumu těchto čísel pro *od 0 pk*, kde *k* je v rosahu 0 až p-1
+- Jinými slovy chceme sečíst rozsah z čísel *n_x* kde x \el {0,...,k}
+- Suma nahradí prvek n_k
+
+![All-to-All Broadcat Algo](./img/3_prefix_sum.png)
+
+![All-to-All Broadcat Algo](./img/3_prefix_sum_algo.png)
+
+## Scatter and Gather
+- Dva kroky
+  1. Scatter - Jeden node zašle unikátní zprávu velikosti *m* všem ostatním nodům (one-to-all personalized)
+  2. Getter - Jeden node sbírá unikátní zprávy od všech ostatních
+- Ačkoli je principielně scatter operace jiná než broadcast, algoritmicky se podobají až na velikost zprávy (zprávy se změnšují u scatteru, ale zůstávají stejné u broadcastu)
+- Getter operace je inverzní operací scatteru
+
+### Cost analysis
+- Dochází k log(p) kroků, v každém kroku se půlí velikost zprávy stejně tak jako pomyslná velikost zbývajího stroje
+- T = t_s * log(p) + t_w * m * (p-1)
+- Toto platí pro linární pole a 2-D mesh
+- Tyto časy jsou asymprocky optimální ve velikosti zpráv
+
+![Scatter and Gather](./img/3_scatter_getter.png)
+
+![Scatter and Gather](./img/3_scatter_getter_hypercube.png)
+
+## All-to-All Personalized Communication 
+- Jinak známo jako total exchange
+- Každý node má odlišnou zprávu velikosti *m* pro každý další node
+- Nezaměňovat s all-to-all broadcastem, kde každý node posílá stejnou zprávu!
+
+![All-to-All Personalized Communication ](./img/3_all_to_all_pers.png)
+
+### Příklad
+- Transponování matice
+- Každý procesor obsahuje řádek matice
+- Transponování tak vyžaduje all-to-all personalizovanou komunikaci
+
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_transpose.png)
+
+### Ring
+- Postup:
+  1. Každý node pošle všechna data jako jednu zprávu o velikosti m * (p-1) jednomu ze sousedů
+  2. Každý node si vybere zprávu určenou pro něj a zbytek pošle dál
+- Algortimus končí za p - 1 kroků
+- Zpráva se každý další krok zmenšuje o *m*
+
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_ring.png)
+
+#### Cost
+- Máme p -1 kroků
+- v i-tém kroku je velikost zprávy m * (p - i)
+- ![All-to-All Personalized Communication](./img/3_all_to_all_pers_ring_cost.png)
+- Člen t_w může být dělen 2 pomocí obousměrné komunikace ❓
+
+### Mesh
+- Postup:
+ 1. Každý uzel nejprve seskupí svých p zpráv podle sloupců jejich cílových nodů
+ 2. Na všech řádcích se nezávisle provede All-to-all personalised komunikace se seskupenými zpávami o velikosti m * sqrt(p)
+ 3. Zprávy na nodech jsou znovu seskupeny tentokrát podle řádků jejich cílových nodů
+ 4. Na všech sloupcích se nezávisle provede All-to-all personalised komunikace se seskupenými zpávami o velikosti m * sqrt(p)
+
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_mesh.png)
+
+#### Cost
+- První fáze je totožná s ringem se sqrt(p) procesory tj. (t_s + t_w * m * p / 2)*(sqrt(p) - 1)
+- Druhá fáze je cenově shodná s první
+- ![All-to-All Personalized Communication](./img/3_all_to_all_pers_mesh_cost.png)
+- Čas pro seskupení je výrazně menší než komunikační čas
+
+### Hypercube
+- Zobecnění mesh algoritmu na log(p) kroků
+- V každém kroku all-to-all pernoslized komunikace drží každý node p zpráv o velikosti m
+- 
