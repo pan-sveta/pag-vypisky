@@ -238,7 +238,7 @@ TODO
 ![One-to-All Broadcat](./img/3_one_to_all.png)
 
 ## One-to-All Broadcats / All-to-One Reduction
-### Na kruhové topologii
+### Ring
 - Broadcast - K poslání *p - 1* zpráv použijeme rekurzivní dvojení (recursive doubling)
   - Zdrojový procesor odešle zprávu na první procesor. Nyní mají oba dva tyto procesory na starosti pouze půlku ze všech procesorů
 
@@ -248,7 +248,7 @@ TODO
 
 ![One-to-All Broadcat](./img/3_all_to_one_ring.png)
 
-### Meshi
+### Mesh
 - Čtvercová matice *p* procesorů má sqrt(p) sloupců a řádků
 - Broadcast a redukce má dva kroky
     1. Rozšíříme zprávu po řádce
@@ -267,3 +267,67 @@ TODO
 
 ![One-to-All Broadcat](./img/3_one_to_all_matrix.png)
 
+### Hypercube
+- K hypercube s 2^d nody můžeme přistupovat jako k d-dimensionální meshi (dva vrcholy na dimensi)
+- Mesh algoritmus můžeme generalizovat k použití na hypercube s d = log(p) kroky
+
+![One-to-All Broadcat](./img/3_one_to_all_hypercube.png)
+
+### Algoritmy pro broadcasts a reductions
+- Všechny výše zmíněné příklady komunikace (viz. obrázky) používají stejný princip
+- Algoritmus může být snadno přizpůsoben i pro další topologie
+
+**One to all**
+
+![One-to-All Broadcat Algo](./img/3_one_to_all_algo.png)
+
+**All to one**
+
+![One-to-All Broadcat Algo](./img/3_all_to_one_algo.png)
+
+### Cost analysis
+- Broadcast i redukce potřebuje log p point-to-point zaslaných zpráv, kde kadžá stojí poslat t_s + t_w*m
+- Celková cena je tedy: T = (t_s + t_w\*m) * log(p)
+
+## All-to-All Broadcats
+- Generalizace přechozího, kde každý procesor vysílá i příjímá zprávy současně
+- V rámci procesu každý procesor pošle stejnou zprávu velikosti m všem ostatním procesorům
+- Různé procesy mohou posílat různé zprávy
+
+![All-to-All Broadcat Algo](./img/3_all_to_all.png)
+
+### Ring
+- V prvním kroku zašle každý procesor svoji zprávu sousedícímu procesoru pro směru hodinových ručiček
+- V každém dalším vždy pošle své a data které již obdržel v přechozích krocích
+- Algoritmus končí po p-1 krocích
+
+![All-to-All Broadcat](./img/3_all_to_all_ring.png)
+
+![All-to-All Broadcat Algo](./img/3_all_to_all_ring_algo.png)
+
+### Mesh
+- Dva kroky
+  1. Každá řádka mřížky provede all-to-all broadcast mezi sebou "lineárně" - každý node získa sqrt(p) zpráv
+  2. Každý node rozšíří přijaté zprávy jako zprávu velikosti m*sqrt(p) po sloupci
+
+![All-to-All Broadcat](./img/3_all_to_all_mesh.png)
+
+![All-to-All Broadcat Algo](./img/3_all_to_all_mesh_algo.png)
+
+### Hypercube
+- Zobecnění mesh algoritmu pro log p dimensí
+- Velikost zpráv se zdvojnásobuje s každým z log(p) kroků
+
+![All-to-All Broadcat](./img/3_all_to_all_hypercube.png)
+
+![All-to-All Broadcat Algo](./img/3_all_to_all_hypercube_algo.png)
+
+## All-to-All Reduction
+- Podobné jako pro all-to-all broadcast, pořadí je opačné
+- Při přijetí zprávy ji musí node zkombinovat s lokální kopií zprávy, která má stejnou destinaci jako zpráva přijatá
+- Po zkombinování je zpráva zaslána sousedovi
+
+### Cost analysis
+- **Kruh** - T = (t_s + t_w * m)*(p-1)
+- **Mesh** - T = 2 * t_s * (sqrt(p) - 1) + t_w * m * (p-1)
+- **Hypercube** - T = t_s * log(p) + t_w * m * (p-1)
