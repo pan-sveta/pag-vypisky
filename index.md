@@ -414,4 +414,47 @@ TODO
 ### Hypercube
 - Zobecnění mesh algoritmu na log(p) kroků
 - V každém kroku all-to-all pernoslized komunikace drží každý node p zpráv o velikosti m
-- 
+- Během komunikace v dané dimensi pošle zašle každý node p/2 zpráv jako jednu seskupenou zprávu
+- Před každým dalším krokem musí znovu provést seskupení zpráv
+
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube.png)
+
+#### Cost
+- Máme log(p) iterací a m * p / 2 iterací
+- ![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_cost.png)
+- Toto není optimální!
+- Každý z p nodů posílá a přijímá m * (p-1) slov, průměrná vzdálenost na hypercube mezi dvěma nody je log(p) / 2 a nachází se zde (p * log(p) / 2) spojení 
+- ![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_cost2.png)
+
+#### Optimální algoritmus
+- Každý node provede p - 1 komunikaních kroků a vymění si m slov s jiným nodem v každém kroku
+- Node si vybírá protistranu komunikace v každém kroku tak, aby nedošlo k zahlcení sítě
+- V j-tém kroku si node *i* vymění zprávy s nodem i XOR j
+
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_optimal.png)
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_optimal_algo.png)
+
+##### Cost
+- Dochází k p - 1 krokům
+- V každém kroku se přenese m slov bez zahlcení
+- ![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_optimal_cost.png)
+- Optimální ve velikosti zprávy
+
+## Circular shift
+- Permutace, ve kterém i-tý node pošle zprávu nodu (i + q) mod p
+- 0 <= q <= p
+
+### Ring
+- Lze provést v min{p, q-p} komunikacích se sousedem
+
+### Mesh
+- Všechny nody pošlou zprávu sousedovi v jednom směru a následně i v druhém směru
+- ![Circular shift](./img/3_circural_shift_mesh_cost.png)
+
+![Circular shift](./img/3_circural_shift_mesh.png)
+
+### Hypercube
+TODO
+
+## Summary
+![Circular shift](./img/3_summary.png)
