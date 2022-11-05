@@ -1,7 +1,7 @@
-# Obsah
-{:toc}
+# PAG Výpisky
 
-# 2. přednáška
+
+# Tasky & dekompozice
 ## Tasky
 - Při návrhu paralelního algoritmu musím prvně zadefinovat **tasky**, které se provádí paralelně
 - Tasky se velikostně liší
@@ -221,7 +221,7 @@ Komplexita
 #### Mappings Based on Data Partitioning
 TODO
 
-# 3. přednáška
+# Komunikace mezi procesory
 ## Komunikace mezi tasky 
 - Je třeba implementovat efektivně
 - Musí vycházet z architektury použitého paralelního systému
@@ -531,3 +531,32 @@ TODO
 - Protože ![Rovnice](https://latex.codecogs.com/svg.latex?E=\frac{T_S}{p*T_P}) je pro cost optimal systémy ![Rovnice](https://latex.codecogs.com/svg.latex?E=\mathcal{O}(1))
 
 ## Efekt granuality na výkon
+- Velmi často menší množství přidělených procesorů zvyšuje výkon paralelního systému
+- Scalling down - přidělení menšího než maximálního možného množství procesorů pro paralelní algoritmus
+- Scalling down - naivní implementace = V původním případě považujeme všechny procesory jako virtuální procesory a ty přidělíme na "scaled-down" procesory
+- Vzhledem k tomu že se množství procesních elemtnů snížilo o *n / p*, výpočty na zbylých procesorech se zvýší o *n / p*
+- Cena komunikace mezi procesory se však nezvýší o tento faktor, protože některé virutální procesory přiřazené na stejný procesor spolu mohou komunikovat "zdarma" - toto je základní důvod zrychlení při snížení granuality
+
+## Scalability of Parallel Systems
+- Jak můžeme extrapolovat data o výkonu z malých problémů a systémů na velké problémy a systémy?
+
+### Scaling Characteristics
+- Víme, že ![Rovnice](https://latex.codecogs.com/svg.latex?E=\frac{T_S}{p*T_P}) nebo také ![Rovnice](https://latex.codecogs.com/svg.latex?E=\frac{1}{1+\frac{T_o}{T_s}})
+- Celková funkce overheadu T<sub>o</sub> je roustoucí funkcí p
+- Pro danou velikost problému (tj. T<sub>S</sub> se nemění), jakmile zvýšíme počet procesorů p, T<sub>o</sub> roste a celková efektivita algoritmu klesá
+- To platí vdžy
+- Funkce T<sub>o</sub> je funkcí jak velikost problému (n -> T<sub>S</sub>), tak počtu procesorů p
+- V mnohda případech roste T<sub>o</sub> sublineárně vzhledem k T<sub>S</sub>
+- V takových případech roste efektivita když je zvětšeno n při zachování počtu procesorů p
+- To znamená že můžeme společně zvětšovat velikost problému n společně počtem proceosrů p při zachování kontantní efektivity
+- Tyto systémy nazýváme scalable
+- Scalability a cost-effectivity jsou propojené veličiny
+- Scalable systém může být vždy učiněn cost-optimal (Θ(1)), když vybereme správně počet procesorů p vzhledem k velikosti problému
+- Když pro stejnou velikost problému zvyšujeme počet procesorů p => efektivita klesá
+
+### Isoefficiency
+- Jaký je poměr zvětšení velikosti problému k počtu procesorů aby zůstala efektivita fixní?
+- Tento poměr určuje škálovatelnost systému
+- Čím "pomalejší", tím lepší
+- **W** - počet operací v nejlepším sériovém algoritmu
+- 
