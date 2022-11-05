@@ -184,10 +184,10 @@ Itemset
 - Minimalizujeme overheads
   - Způsobený komunikací
   - Způsobený nečiností (nepřidělenou prací) některého procesoru
-- Minimalizace je optimalizační problém a často si odporuje - např. přidělením celé práce jedinému procesoru minimalizuje komunikace, lale způsobí nečinost všech ostatních procesorů
+- Minimalizace je optimalizační problém a často si odporuje - např. přidělením celé práce jedinému procesoru minimalizuje komunikace, ale způsobí nečinost všech ostatních procesorů
 
 #### Mapping Techniques for Minimum Idling
- - Musíme současně minimalizovat indling a provádět load balancing
+ - Musíme současně minimalizovat idling a provádět load balancing
  - Pouhý loadbalancing neminimalizuje idling!
  - Mapování je ovlivěno velikostí tasků, zpsůbem generování, velikostí asociovaných dat
  - Případ (a) je otpimální, případ (b) není
@@ -221,7 +221,7 @@ TODO
 # 3. přednáška
 ## Komunikace mezi tasky 
 - Je třeba implementovat efektivně
-- Musí vycházet z architektury použitého paralleního systému
+- Musí vycházet z architektury použitého paralelního systému
 - Skupinová komunikace je realizována jako více point-to-point zpráv
 - Poslání zprávy o velikosti *m* zabere na nezahlcené síti *t_s + t_w \* m*
 - Tato metrika je použitá k měření rychlosti komunikace
@@ -277,16 +277,16 @@ TODO
 - Všechny výše zmíněné příklady komunikace (viz. obrázky) používají stejný princip
 - Algoritmus může být snadno přizpůsoben i pro další topologie
 
-**One to all**
+**One to all (hypercube)**
 
 ![One-to-All Broadcat Algo](./img/3_one_to_all_algo.png)
 
-**All to one**
+**All to one (hypercube)**
 
 ![One-to-All Broadcat Algo](./img/3_all_to_one_algo.png)
 
 ### Cost analysis
-- Broadcast i redukce potřebuje log p point-to-point zaslaných zpráv, kde kadžá stojí poslat t_s + t_w*m
+- Broadcast i redukce potřebuje log p point-to-point přenosů, kde kadžá stojí poslat t_s + t_w*m
 - Celková cena je tedy: T = (t_s + t_w\*m) * log(p)
 
 ## All-to-All Broadcats
@@ -298,7 +298,7 @@ TODO
 
 ### Ring
 - V prvním kroku zašle každý procesor svoji zprávu sousedícímu procesoru pro směru hodinových ručiček
-- V každém dalším vždy pošle své a data které již obdržel v přechozích krocích
+- V každém dalších krocích vždy přepošle data, které obdržel od jednoho souseda druhému sousedu
 - Algoritmus končí po p-1 krocích
 
 ![All-to-All Broadcat](./img/3_all_to_all_ring.png)
@@ -342,8 +342,8 @@ TODO
 - Rozdíl od all-to-all - neprobíhá p souběžných all-to-one redukcí, každá s jiným cílem výsledku
 
 ## Prefix-Sum
-- Mějme p čísel n_0, n_1,...,n_p-1 (každé na jiném nodu), chceme spočíst sumu těchto čísel pro *od 0 pk*, kde *k* je v rosahu 0 až p-1
-- Jinými slovy chceme sečíst rozsah z čísel *n_x* kde x \el {0,...,k}
+- Mějme p čísel n_0, n_1,...,n_p-1 (každé na jiném nodu), chceme spočíst sumu těchto čísel pro *od 0 po k*, kde *k* je v rosahu 0 až p-1
+- Jinými slovy na každym nodu chceme sumu z čísel *n_x* kde x \el {0,...,k} a *k* je index toho nodu
 - Suma nahradí prvek n_k
 
 ![All-to-All Broadcat Algo](./img/3_prefix_sum.png)
@@ -361,7 +361,7 @@ TODO
 - Dochází k log(p) kroků, v každém kroku se půlí velikost zprávy stejně tak jako pomyslná velikost zbývajího stroje
 - T = t_s * log(p) + t_w * m * (p-1)
 - Toto platí pro linární pole a 2-D mesh
-- Tyto časy jsou asymprocky optimální ve velikosti zpráv
+- Tyto časy jsou asymptociky optimální ve velikosti zpráv
 
 ![Scatter and Gather](./img/3_scatter_getter.png)
 
