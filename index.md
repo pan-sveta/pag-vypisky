@@ -1,3 +1,6 @@
+# Obsah
+{:toc}
+
 # 2. přednáška
 ## Tasky
 - Při návrhu paralelního algoritmu musím prvně zadefinovat **tasky**, které se provádí paralelně
