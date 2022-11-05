@@ -461,3 +461,73 @@ TODO
 
 ## Summary
 ![Circular shift](./img/3_summary.png)
+
+# Analytical model
+- Sekvenční algoritmy
+  - Vyhodnocujeme asymptotickou dobu běhu nezávisle na platformě
+  - Doba běhu je závislá na velikosti vtupu
+- Paralelní algoritmy
+  - Vyhodnocujeme dobu běhu v závislosti na platformě
+  - Doba běhu je závislá na velikosti vstupu, počtu procesorů a komunikačních parametrech
+- Dva-krát tolik procesorů neznamená dvakrát rychlejší běh <= overheads (komunikace, idling, zahlcení sítě, atd.)
+
+
+## Metriky
+
+### Execution time
+- Sériové algoritmy
+  - Doba běhu algoritmu od začátku do konce
+  - Značíme T<sub>S</sub>
+- Paralelní algortimy
+  - Doba běhu od začátku práce prvního procesoru do skončení posledního procesoru
+  - Značíme T<sub>P</sub>
+
+### Total Parallel Overhead 
+- T<sub>all</sub> =  p * T<sub>p</sub> Celkový čas všech procesorů
+- Celkový overhead
+  - Čas strávený všemi procesory na neužitečné práci
+  - Značíme T<sub>o</sub>
+  - T<sub>o</sub> = T<sub>all</sub> - T<sub>S</sub>  = p * T<sub>P</sub> - T<sub>S</sub>
+
+### Speedup
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;S=\frac{T_S}{T_P}) 
+- Poměr mezi časem strávený sériovým algoritmem a paralelním algoritmem s p stejnými procesory
+- Pro jeden problém může existovat více různě výkoných (asymptociká složitost) sériových algoritmů s rozdílou mírou možné paralelizace
+- Pro výpočet speedupu používáme vždy nevýkonější možný
+- Speed může být nejméně 0 - parallení program nedoběhne
+- Teorticky může být speedup maximálně p - tj. nemůžeme zrychlit o víc než kolik přiřadíme výpočetních jednotek
+- V praxi toto ale neplatí - jeden procesor může strávit výpočetem méně než T<sub>S</sub> / p = superlinear speedup
+
+#### Superlinear speedup
+- Paralelní algoritmus může ve výsledku odvést méně práce než jeho sériový protějšek
+- Příklad: Hledání prvku ve stromu pomocí DFS
+  - Hledáme prvek nejvíce v pravo dole
+  - Sériový program prohledá celý strom
+  - Paralelní rozdělí práci na dva podstromy mezi dva procesory a zastaví se dříve, než je prohledán celý strom = méně práce
+
+![Superlinear speedup](./img/4_superlinear_speedup.png)
+
+#### Amdahl’s Law
+- Každý algoritmus obsahuje část, která je
+  - Přirozeně sekvenční &beta;
+  - Přirozeně paralelní (1 - &beta;)
+- Speedup je limitován přirozeně sekvenční částí
+- Amdahl’s Law definije maximální možný teoretický speedup (ignoruje overhead a cenu komunikace)
+- Sériová část je spočtena jako &beta; * T<sub>S</sub> 
+- Paralelní část je spočtena jako (1-&beta;) * T<sub>S</sub> / p
+- Z toho plyne, že T<sub>P</sub> = &beta; * T<sub>S</sub> + (1-&beta;) * T<sub>S</sub> / p
+- Pro speedup potom platí:
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;S\le\frac{T_S}{\beta*T_S+(1-\beta)*T_S/p}\le\frac{p}{\beta*p+(1-\beta)})
+
+### Efficiency
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;E=\frac{S}{p})
+- Poměr času, kdy je procesor efektivně vytížen
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;0\leq&space;E\leq1)
+
+### Cost
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;Cost=p*T_P)
+- Suma času, po kterou procesory provádely výpočty
+- Paralelní systému je **cost optimal**, pokud je cost řešení problému na paralelním počítači asymptoticky shodný se sériovým costem
+- Protože ![Rovnice](https://latex.codecogs.com/svg.latex?E=\frac{T_S}{p*T_P}) je pro cost optimal systémy ![Rovnice](https://latex.codecogs.com/svg.latex?E=\mathcal{O}(1))
+
+## Efekt granuality na výkon
