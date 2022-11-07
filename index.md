@@ -1,4 +1,7 @@
-# 2. přednáška
+# PAG Výpisky
+
+
+# Tasky & dekompozice
 ## Tasky
 - Při návrhu paralelního algoritmu musím prvně zadefinovat **tasky**, které se provádí paralelně
 - Tasky se velikostně liší
@@ -184,10 +187,10 @@ Itemset
 - Minimalizujeme overheads
   - Způsobený komunikací
   - Způsobený nečiností (nepřidělenou prací) některého procesoru
-- Minimalizace je optimalizační problém a často si odporuje - např. přidělením celé práce jedinému procesoru minimalizuje komunikace, lale způsobí nečinost všech ostatních procesorů
+- Minimalizace je optimalizační problém a často si odporuje - např. přidělením celé práce jedinému procesoru minimalizuje komunikace, ale způsobí nečinost všech ostatních procesorů
 
 #### Mapping Techniques for Minimum Idling
- - Musíme současně minimalizovat indling a provádět load balancing
+ - Musíme současně minimalizovat idling a provádět load balancing
  - Pouhý loadbalancing neminimalizuje idling!
  - Mapování je ovlivěno velikostí tasků, zpsůbem generování, velikostí asociovaných dat
  - Případ (a) je otpimální, případ (b) není
@@ -218,14 +221,13 @@ Komplexita
 #### Mappings Based on Data Partitioning
 TODO
 
-# 3. přednáška
+# Komunikace mezi procesory
 ## Přehled vzorců
-
 ![Table](./img/3_table.png)
 
 ## Komunikace mezi tasky 
 - Je třeba implementovat efektivně
-- Musí vycházet z architektury použitého paralleního systému
+- Musí vycházet z architektury použitého paralelního systému
 - Skupinová komunikace je realizována jako více point-to-point zpráv
 - Poslání zprávy o velikosti *m* zabere na nezahlcené síti *t_s + t_w \* m*
 - Tato metrika je použitá k měření rychlosti komunikace
@@ -281,16 +283,16 @@ TODO
 - Všechny výše zmíněné příklady komunikace (viz. obrázky) používají stejný princip
 - Algoritmus může být snadno přizpůsoben i pro další topologie
 
-**One to all**
+**One to all (hypercube)**
 
 ![One-to-All Broadcat Algo](./img/3_one_to_all_algo.png)
 
-**All to one**
+**All to one (hypercube)**
 
 ![One-to-All Broadcat Algo](./img/3_all_to_one_algo.png)
 
 ### Cost analysis
-- Broadcast i redukce potřebuje log p point-to-point zaslaných zpráv, kde kadžá stojí poslat t_s + t_w*m
+- Broadcast i redukce potřebuje log p point-to-point přenosů, kde kadžá stojí poslat t_s + t_w*m
 - Celková cena je tedy: T = (t_s + t_w\*m) * log(p)
 
 ## All-to-All Broadcats
@@ -302,7 +304,7 @@ TODO
 
 ### Ring
 - V prvním kroku zašle každý procesor svoji zprávu sousedícímu procesoru pro směru hodinových ručiček
-- V každém dalším vždy pošle své a data které již obdržel v přechozích krocích
+- V každém dalších krocích vždy přepošle data, které obdržel od jednoho souseda druhému sousedu
 - Algoritmus končí po p-1 krocích
 
 ![All-to-All Broadcat](./img/3_all_to_all_ring.png)
@@ -346,8 +348,8 @@ TODO
 - Rozdíl od all-to-all - neprobíhá p souběžných all-to-one redukcí, každá s jiným cílem výsledku
 
 ## Prefix-Sum
-- Mějme p čísel n_0, n_1,...,n_p-1 (každé na jiném nodu), chceme spočíst sumu těchto čísel pro *od 0 pk*, kde *k* je v rosahu 0 až p-1
-- Jinými slovy chceme sečíst rozsah z čísel *n_x* kde x \el {0,...,k}
+- Mějme p čísel n_0, n_1,...,n_p-1 (každé na jiném nodu), chceme spočíst sumu těchto čísel pro *od 0 po k*, kde *k* je v rosahu 0 až p-1
+- Jinými slovy na každym nodu chceme sumu z čísel *n_x* kde x \el {0,...,k} a *k* je index toho nodu
 - Suma nahradí prvek n_k
 
 ![All-to-All Broadcat Algo](./img/3_prefix_sum.png)
@@ -365,7 +367,7 @@ TODO
 - Dochází k log(p) kroků, v každém kroku se půlí velikost zprávy stejně tak jako pomyslná velikost zbývajího stroje
 - T = t_s * log(p) + t_w * m * (p-1)
 - Toto platí pro linární pole a 2-D mesh
-- Tyto časy jsou asymprocky optimální ve velikosti zpráv
+- Tyto časy jsou asymptociky optimální ve velikosti zpráv
 
 ![Scatter and Gather](./img/3_scatter_getter.png)
 
@@ -418,4 +420,146 @@ TODO
 ### Hypercube
 - Zobecnění mesh algoritmu na log(p) kroků
 - V každém kroku all-to-all pernoslized komunikace drží každý node p zpráv o velikosti m
+- Během komunikace v dané dimensi pošle zašle každý node p/2 zpráv jako jednu seskupenou zprávu
+- Před každým dalším krokem musí znovu provést seskupení zpráv
+
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube.png)
+
+#### Cost
+- Máme log(p) iterací a m * p / 2 iterací
+- ![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_cost.png)
+- Toto není optimální!
+- Každý z p nodů posílá a přijímá m * (p-1) slov, průměrná vzdálenost na hypercube mezi dvěma nody je log(p) / 2 a nachází se zde (p * log(p) / 2) spojení 
+- ![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_cost2.png)
+
+#### Optimální algoritmus
+- Každý node provede p - 1 komunikaních kroků a vymění si m slov s jiným nodem v každém kroku
+- Node si vybírá protistranu komunikace v každém kroku tak, aby nedošlo k zahlcení sítě
+- V j-tém kroku si node *i* vymění zprávy s nodem i XOR j
+
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_optimal.png)
+![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_optimal_algo.png)
+
+##### Cost
+- Dochází k p - 1 krokům
+- V každém kroku se přenese m slov bez zahlcení
+- ![All-to-All Personalized Communication](./img/3_all_to_all_pers_hypercube_optimal_cost.png)
+- Optimální ve velikosti zprávy
+
+## Circular shift
+- Permutace, ve kterém i-tý node pošle zprávu nodu (i + q) mod p
+- 0 <= q <= p
+
+### Ring
+- Lze provést v min{p, q-p} komunikacích se sousedem
+
+### Mesh
+- Všechny nody pošlou zprávu sousedovi v jednom směru a následně i v druhém směru
+- ![Circular shift](./img/3_circural_shift_mesh_cost.png)
+
+![Circular shift](./img/3_circural_shift_mesh.png)
+
+### Hypercube
+TODO
+
+## Summary
+![Circular shift](./img/3_summary.png)
+
+# Analytical model
+- Sekvenční algoritmy
+  - Vyhodnocujeme asymptotickou dobu běhu nezávisle na platformě
+  - Doba běhu je závislá na velikosti vtupu
+- Paralelní algoritmy
+  - Vyhodnocujeme dobu běhu v závislosti na platformě
+  - Doba běhu je závislá na velikosti vstupu, počtu procesorů a komunikačních parametrech
+- Dva-krát tolik procesorů neznamená dvakrát rychlejší běh <= overheads (komunikace, idling, zahlcení sítě, atd.)
+
+
+## Metriky
+
+### Execution time
+- Sériové algoritmy
+  - Doba běhu algoritmu od začátku do konce
+  - Značíme T<sub>S</sub>
+- Paralelní algortimy
+  - Doba běhu od začátku práce prvního procesoru do skončení posledního procesoru
+  - Značíme T<sub>P</sub>
+
+### Total Parallel Overhead 
+- T<sub>all</sub> =  p * T<sub>p</sub> Celkový čas všech procesorů
+- Celkový overhead
+  - Čas strávený všemi procesory na neužitečné práci
+  - Značíme T<sub>o</sub>
+  - T<sub>o</sub> = T<sub>all</sub> - T<sub>S</sub>  = p * T<sub>P</sub> - T<sub>S</sub>
+
+### Speedup
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;S=\frac{T_S}{T_P}) 
+- Poměr mezi časem strávený sériovým algoritmem a paralelním algoritmem s p stejnými procesory
+- Pro jeden problém může existovat více různě výkoných (asymptociká složitost) sériových algoritmů s rozdílou mírou možné paralelizace
+- Pro výpočet speedupu používáme vždy nevýkonější možný
+- Speed může být nejméně 0 - parallení program nedoběhne
+- Teorticky může být speedup maximálně p - tj. nemůžeme zrychlit o víc než kolik přiřadíme výpočetních jednotek
+- V praxi toto ale neplatí - jeden procesor může strávit výpočetem méně než T<sub>S</sub> / p = superlinear speedup
+
+#### Superlinear speedup
+- Paralelní algoritmus může ve výsledku odvést méně práce než jeho sériový protějšek
+- Příklad: Hledání prvku ve stromu pomocí DFS
+  - Hledáme prvek nejvíce v pravo dole
+  - Sériový program prohledá celý strom
+  - Paralelní rozdělí práci na dva podstromy mezi dva procesory a zastaví se dříve, než je prohledán celý strom = méně práce
+
+![Superlinear speedup](./img/4_superlinear_speedup.png)
+
+#### Amdahl’s Law
+- Každý algoritmus obsahuje část, která je
+  - Přirozeně sekvenční &beta;
+  - Přirozeně paralelní (1 - &beta;)
+- Speedup je limitován přirozeně sekvenční částí
+- Amdahl’s Law definije maximální možný teoretický speedup (ignoruje overhead a cenu komunikace)
+- Sériová část je spočtena jako &beta; * T<sub>S</sub> 
+- Paralelní část je spočtena jako (1-&beta;) * T<sub>S</sub> / p
+- Z toho plyne, že T<sub>P</sub> = &beta; * T<sub>S</sub> + (1-&beta;) * T<sub>S</sub> / p
+- Pro speedup potom platí:
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;S\le\frac{T_S}{\beta*T_S+(1-\beta)*T_S/p}\le\frac{p}{\beta*p+(1-\beta)})
+
+### Efficiency
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;E=\frac{S}{p})
+- Poměr času, kdy je procesor efektivně vytížen
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;0\leq&space;E\leq1)
+
+### Cost
+- ![Rovnice](https://latex.codecogs.com/svg.latex?\Large&space;Cost=p*T_P)
+- Suma času, po kterou procesory provádely výpočty
+- Paralelní systému je **cost optimal**, pokud je cost řešení problému na paralelním počítači asymptoticky shodný se sériovým costem
+- Protože ![Rovnice](https://latex.codecogs.com/svg.latex?E=\frac{T_S}{p*T_P}) je pro cost optimal systémy ![Rovnice](https://latex.codecogs.com/svg.latex?E=\mathcal{O}(1))
+
+## Efekt granuality na výkon
+- Velmi často menší množství přidělených procesorů zvyšuje výkon paralelního systému
+- Scalling down - přidělení menšího než maximálního možného množství procesorů pro paralelní algoritmus
+- Scalling down - naivní implementace = V původním případě považujeme všechny procesory jako virtuální procesory a ty přidělíme na "scaled-down" procesory
+- Vzhledem k tomu že se množství procesních elemtnů snížilo o *n / p*, výpočty na zbylých procesorech se zvýší o *n / p*
+- Cena komunikace mezi procesory se však nezvýší o tento faktor, protože některé virutální procesory přiřazené na stejný procesor spolu mohou komunikovat "zdarma" - toto je základní důvod zrychlení při snížení granuality
+
+## Scalability of Parallel Systems
+- Jak můžeme extrapolovat data o výkonu z malých problémů a systémů na velké problémy a systémy?
+
+### Scaling Characteristics
+- Víme, že ![Rovnice](https://latex.codecogs.com/svg.latex?E=\frac{T_S}{p*T_P}) nebo také ![Rovnice](https://latex.codecogs.com/svg.latex?E=\frac{1}{1+\frac{T_o}{T_s}})
+- Celková funkce overheadu T<sub>o</sub> je roustoucí funkcí p
+- Pro danou velikost problému (tj. T<sub>S</sub> se nemění), jakmile zvýšíme počet procesorů p, T<sub>o</sub> roste a celková efektivita algoritmu klesá
+- To platí vdžy
+- Funkce T<sub>o</sub> je funkcí jak velikost problému (n -> T<sub>S</sub>), tak počtu procesorů p
+- V mnohda případech roste T<sub>o</sub> sublineárně vzhledem k T<sub>S</sub>
+- V takových případech roste efektivita když je zvětšeno n při zachování počtu procesorů p
+- To znamená že můžeme společně zvětšovat velikost problému n společně počtem proceosrů p při zachování kontantní efektivity
+- Tyto systémy nazýváme scalable
+- Scalability a cost-effectivity jsou propojené veličiny
+- Scalable systém může být vždy učiněn cost-optimal (Θ(1)), když vybereme správně počet procesorů p vzhledem k velikosti problému
+- Když pro stejnou velikost problému zvyšujeme počet procesorů p => efektivita klesá
+
+### Isoefficiency
+- Jaký je poměr zvětšení velikosti problému k počtu procesorů aby zůstala efektivita fixní?
+- Tento poměr určuje škálovatelnost systému
+- Čím "pomalejší", tím lepší
+- **W** - počet operací v nejlepším sériovém algoritmu
 - 
