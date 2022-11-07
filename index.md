@@ -219,6 +219,10 @@ Komplexita
 TODO
 
 # 3. přednáška
+## Přehled vzorců
+
+![Table](./img/3_table.png)
+
 ## Komunikace mezi tasky 
 - Je třeba implementovat efektivně
 - Musí vycházet z architektury použitého paralleního systému
